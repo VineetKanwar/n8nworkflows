@@ -1,0 +1,354 @@
+{
+  "name": "Image Generation",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Post Ideas ",
+        "formDescription": "Give your post ideas. ",
+        "formFields": {
+          "values": [
+            {
+              "fieldName": "EMail",
+              "fieldLabel": "Write your email",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldName": "Topic of Post",
+              "fieldLabel": "What should be the topic of the post",
+              "requiredField": true
+            },
+            {
+              "fieldName": "Target Audience",
+              "fieldLabel": "What is your target audience",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.4,
+      "position": [
+        -2304,
+        400
+      ],
+      "id": "9c597e6e-9fd0-424f-8e84-d67bebf09291",
+      "name": "On form submission",
+      "webhookId": "5d4abb8e-cf56-4507-bdc4-70d48933f7db"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Topic of the Post : {{ $json['Topic of Post'] }}\n\nTarget Audience : {{ $json['Target Audience'] }}",
+        "options": {
+          "systemMessage": "You are a professional social media content creator specializing in Instagram posts.\n\nYou will be provided with:\n1. Topic of Post\n2. Target Audience\n\nBEFORE writing the post:\n- You MUST use the Tavily search tool to research the topic\n- Use Tavily to identify recent trends, common pain points, or popular angles related to the topic\n- Use the research only to INFORM the post\n- Do NOT mention Tavily, research, or sources in the final output\n\nYour task is to create ONE Instagram post based on the given topic, tailored specifically to the target audience and informed by the Tavily research.\n\nContent requirements:\n- Platform: Instagram\n- Tone: engaging, relatable, and inspiring\n- Writing style: clear, concise, and share-worthy\n- Length: short to medium (optimized for Instagram engagement)\n\nPost structure:\n- Start with a strong hook in the first line to stop scrolling\n- Deliver value, insight, or motivation related to the topic\n- End with a soft call-to-action (question or engagement prompt)\n\nFormatting rules:\n- Use short lines for readability\n- Include 2–4 relevant emojis (natural, not excessive)\n- Include EXACTLY 4–5 hashtags\n- Hashtags must be relevant, high-engagement, and viral-oriented\n- Prefer a mix of niche-specific and broad discovery hashtags\n- Hashtags must be placed at the END of the post\n- Avoid generic or spammy hashtags (e.g., #like4like, #followme)\n- Do NOT use markdown formatting\n\nAudience alignment rules:\n- Adapt language, tone, and examples to match the target audience\n- Avoid jargon unless the target audience is highly technical\n- Make the post relatable, engaging, and share-worthy for the audience\n\nOutput rules (IMPORTANT):\n- Output ONLY the Instagram post text\n- Do NOT include explanations, headings, or metadata\n- Do NOT mention tools or sources\n- Do NOT include quotes around the post\n- Do NOT output JSON\n\nExample (FOR UNDERSTANDING ONLY — DO NOT REPEAT OR REFERENCE THIS):\n\nInput:\nTopic of Post: Building consistency as a content creator\nTarget Audience: Small business owners and solopreneurs\n\nExample Output:\nConsistency isn’t about doing everything every day.\nIt’s about showing up even when motivation drops 💡\n\nSmall steps compound faster than big bursts of effort.\nPost, learn, repeat — that’s the real growth formula 🚀\n\nWhat’s one small action you can take today to stay consistent?\n\n#ContentCreatorLife #SmallBusinessTips #EntrepreneurMindset #BuildInPublic\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -2080,
+        400
+      ],
+      "id": "7ebc25fa-70e1-4ca7-b7ee-8319a7f37986",
+      "name": "Instagram Post Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -1856,
+        688
+      ],
+      "id": "403ecdc4-2d6e-4c1b-a470-1a9d54be86a3",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "dJcWT8vWRuwM3iMF",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"query\": \"{searchTerm}\",\n  \"search_depth\": \"basic\",\n  \"chunks_per_source\": 3,\n  \"max_results\": 1,\n  \"topic\": \"general\",\n  \"time_range\": null,\n  \"start_date\": \"2025-02-09\",\n  \"end_date\": \"2025-12-29\",\n  \"include_answer\": false,\n  \"include_raw_content\": false,\n  \"include_images\": false,\n  \"include_image_descriptions\": false,\n  \"include_favicon\": false,\n  \"include_domains\": [],\n  \"exclude_domains\": [],\n  \"country\": null,\n  \"auto_parameters\": false,\n  \"include_usage\": false\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        -2176,
+        656
+      ],
+      "id": "379e43e5-0eca-4cf7-995d-9d796e13a22e",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "PpIgsEktRjtczFIo",
+          "name": "Firecrawl"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.output }}",
+        "options": {
+          "systemMessage": "You are a visual content strategist and image prompt designer for Instagram.\n\nINPUT:\nYou will receive the FULL Instagram post text generated by a previous AI agent.\nThis text represents the message, tone, and intent of the post.\n\nYour task is to:\n- Understand the core message, emotion, and hook of the post\n- Translate that message into a SINGLE engaging image concept\n- Describe the image in a way that can be directly used by an image generation tool\n\nImage goals:\n- Platform: Instagram feed post\n- Purpose: Stop scrolling and visually communicate the message instantly\n- Style: modern, clean, and high-engagement\n- Emotion: aligned with the tone of the post (inspiring, motivating, relatable, etc.)\n\nImage composition rules:\n- Focus on ONE strong visual idea (do not overcrowd)\n- Use visual storytelling instead of text wherever possible\n- Depict the idea metaphorically or symbolically if appropriate\n- Use contrast, depth, or perspective to create a visual hook\n\nText rules (VERY IMPORTANT):\n- Use MINIMAL on-image text\n- Maximum: 3–6 words total\n- Text must be punchy and hook-driven\n- Do NOT repeat the full caption text\n- If text is unnecessary, explicitly state: “No text on image”\n\nStyle & design guidance:\n- Clearly describe the main subject\n- Specify visual style (illustration, realistic photo, cinematic, flat design, etc.)\n- Specify lighting, mood, and color palette\n- Specify background and composition\n- Avoid clutter and excessive detail\n\nOutput rules (IMPORTANT):\n- Output ONLY the image description/prompt\n- Do NOT include explanations, headings, or metadata\n- Do NOT include hashtags or emojis\n- Do NOT output JSON\n- Do NOT reference the previous agent or the caption directly\n\nExample (FOR UNDERSTANDING ONLY — DO NOT COPY OR REFERENCE THIS):\n\nInput (from previous AI agent):\nConsistency isn’t about doing everything every day.\nIt’s about showing up even when motivation drops 💡\n\nSmall steps compound faster than big bursts of effort.\nPost, learn, repeat — that’s the real growth formula 🚀\n\nWhat’s one small action you can take today to stay consistent?\n\n#ContentCreatorLife #SmallBusinessTips #EntrepreneurMindset #BuildInPublic\n\nExample Output:\nA clean, minimalist illustration of a person placing a single brick onto a growing wall at sunrise, symbolizing steady progress over time. Warm golden lighting, soft shadows, calm and inspiring mood. Simple background with subtle gradients. On-image text: “Small steps daily”.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -1728,
+        400
+      ],
+      "id": "a9baf592-2592-41d4-8a07-d5fa13bc1c2a",
+      "name": "Image Prompt Agent"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "data[0].b64_json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        -1136,
+        400
+      ],
+      "id": "779a2f4f-d225-47ef-94c7-db9f15db5a88",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "resource": "image"
+      },
+      "type": "@mookielianhd/n8n-nodes-instagram.instagram",
+      "typeVersion": 1,
+      "position": [
+        -704,
+        -128
+      ],
+      "id": "29568631-0d25-4780-9b08-777ec8732d43",
+      "name": "Publish"
+    },
+    {
+      "parameters": {
+        "resource": "video",
+        "operation": "upload",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.youTube",
+      "typeVersion": 1,
+      "position": [
+        -448,
+        -96
+      ],
+      "id": "e4447aa1-56c7-4d6d-ab7a-98b5c8c8cb11",
+      "name": "Upload a video"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/images/generations",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "gpt-image-1"
+            },
+            {
+              "name": "prompt",
+              "value": "={{ $json.output }}"
+            },
+            {
+              "name": "size",
+              "value": "1024x1024"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1344,
+        400
+      ],
+      "id": "b3e09787-7d9e-4764-b339-dcff2cb0087e",
+      "name": "Generate Image",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "eVAocmNiQFXXNSQ6",
+          "name": "Open AI Image"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "vineetkanwar14@gmail.com",
+        "subject": "The Image",
+        "emailType": "text",
+        "message": "={{ $('Instagram Post Agent').item.json.output }}",
+        "options": {
+          "appendAttribution": false,
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "=data"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -832,
+        400
+      ],
+      "id": "50bd0aed-1257-4341-91e8-400e51d02f09",
+      "name": "Send a message",
+      "webhookId": "565e6ee8-d9a3-4884-a56e-043ad39b15f2",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "4Zbj6DF7rI04uJLX",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "On form submission": [
+      {
+        "json": {
+          "EMail": "vineetkanwar14@gmail.com",
+          "Topic of Post": "Dedication over Motivation",
+          "Target Audience": "Adults",
+          "submittedAt": "2026-01-12T17:27:44.198-05:00",
+          "formMode": "test"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Instagram Post Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Instagram Post Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Image Prompt Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "ai_tool": [
+        [
+          {
+            "node": "Instagram Post Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Instagram Post Agent": {
+      "main": [
+        [
+          {
+            "node": "Image Prompt Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image Prompt Agent": {
+      "main": [
+        [
+          {
+            "node": "Generate Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Image": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "6baeb16d-7377-4d77-a850-f65593b58d88",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8a6003c01ddd74933bab9430511200e3e461d724351b30a3ff8b0df664bb859a"
+  },
+  "id": "SFgVTQ728tuAEImN",
+  "tags": []
+}
