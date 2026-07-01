@@ -1,1 +1,1 @@
-
+## This RAG (Retrieval-Augmented Generation) chatbot workflow is a two-part AI pipeline. First, it processes and stores your specific documents into a searchable database. Second, when a user asks a question, the system finds the most relevant information and uses a Large Language Model (LLM) to generate an accurate, source-backed answer.
