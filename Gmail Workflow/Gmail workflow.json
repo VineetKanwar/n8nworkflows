@@ -1,0 +1,172 @@
+{
+  "name": "Gmail workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Required Form",
+        "formDescription": "Please fill it properly",
+        "formFields": {
+          "values": [
+            {
+              "fieldName": "Name",
+              "fieldLabel": "Type your name",
+              "requiredField": true
+            },
+            {
+              "fieldName": "Email Address",
+              "fieldLabel": "Type your Email",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldName": "Date",
+              "fieldLabel": "Date needed",
+              "fieldType": "date",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.4,
+      "position": [
+        -480,
+        96
+      ],
+      "id": "9af376a9-f66a-4a5a-88bb-1aa583f35089",
+      "name": "On form submission",
+      "webhookId": "001250a0-9336-4e65-b1d7-4928f116a578"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "9be538db-963a-4325-b41f-6c1223d03591",
+              "leftValue": "={{ $json.Date }}",
+              "rightValue": "={{ $now.plus(7, 'days') }}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "beforeOrEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -256,
+        96
+      ],
+      "id": "2bdac1ec-1644-4818-9a06-007702ad1ec9",
+      "name": "Is within 7 Days"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json['Email Address'] }}",
+        "subject": "Form Received.",
+        "message": "=Hi,\n\nCongratulations {{ $json.Name }},\n\nYour appointment has been fixed for {{ $json.Date }}\n\nWarm Regards,\nVineet",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -32,
+        0
+      ],
+      "id": "58144470-ea09-4c7e-94fb-66265a580541",
+      "name": "Within 7 days",
+      "webhookId": "d0fc6a97-c3d1-479b-af85-3d952fb0bf6d",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WYVVVOeYA9E1yfwV",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json['Email Address'] }}",
+        "subject": "URGENT!!!",
+        "emailType": "text",
+        "message": "=Hi  {{ $json.Name }},\n\nUnfortunately, we take appointments only within the 7 day period. Please choose a date within the 7 day period or come back later. \n\nSorry for the inconvinience.\n\nWarm Regards,\nVineet",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -32,
+        192
+      ],
+      "id": "d961f544-7e98-4fbd-8e3f-1d4388af45b2",
+      "name": "After 7 days",
+      "webhookId": "d0110750-fcc3-42af-af41-afb9eab8e78e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WYVVVOeYA9E1yfwV",
+          "name": "Gmail account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Is within 7 Days",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is within 7 Days": {
+      "main": [
+        [
+          {
+            "node": "Within 7 days",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "After 7 days",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "7c508b99-9b8a-4620-b412-1e1f73d1501d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8a6003c01ddd74933bab9430511200e3e461d724351b30a3ff8b0df664bb859a"
+  },
+  "id": "Cqfbnrck6741szAM",
+  "tags": []
+}
